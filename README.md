@@ -13,8 +13,8 @@ If you like the consolidations I've done, feel free to use this! If not, or if y
 > [!WARNING]
 > This assumes that you're using this project as is. If you add your own endpoints, make sure you account for any extra required API keys
 
-1. `ACCESS_TOKEN` This will be the token to use when calling this API. If your services are exposed and/or not behind a reverse proxy, make sure it's something secure
-2. `JELLYSEERR_SERVER_URL` The URL where your Jellyseer app is located
+1. `TOKEN` This will be the token to use when calling this API. If your services are exposed and/or not behind a reverse proxy, make sure it's something secure
+2. `JELLYSEERR_URL` The URL where your Jellyseer app is located
 3. `JELLYSEERR_API_KEY` The API key to make requests to your Jellyseerr app
 
 ## Coming soon
