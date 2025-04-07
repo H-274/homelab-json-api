@@ -137,7 +137,6 @@ fn media_requests_decoder() -> decode.Decoder(List(#(Int, RequestInfo))) {
 }
 
 fn get_media_info(id: Int, media_type: String, ctx: web.Context) {
-fn get_media_info(id: Int, media_type: String, ctx: web.Context) {
   let url =
     string.join(
       [ctx.jellyseerr_url, api_path, media_type, int.to_string(id)],
