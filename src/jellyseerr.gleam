@@ -131,13 +131,12 @@ fn media_requests_decoder() -> decode.Decoder(List(#(Int, RequestInfo))) {
       decode.string,
     )
 
-    decode.list(
-      decode.success(#(
-        tmdb_id,
-        RequestInfo(status:, created_at:, media_type:, requested_by:),
-      )),
-    )
+    decode.success(#(
+      tmdb_id,
+      RequestInfo(status:, created_at:, media_type:, requested_by:),
+    ))
   }
+  |> decode.list()
   |> decode.at(["results"], _)
 }
 
