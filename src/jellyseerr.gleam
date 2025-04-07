@@ -7,7 +7,6 @@ import gleam/httpc
 import gleam/int
 import gleam/json
 import gleam/list
-import gleam/otp/task
 import gleam/result.{map_error, replace_error as error, try}
 import gleam/string
 import wisp
@@ -73,19 +72,16 @@ fn fetch_data(ctx: web.Context) {
     |> map_error(JSONDecodeError),
   )
 
-  let media_info_tasks =
-    list.map(media_request_list, fn(media_request) {
+  use media_info_list <- try(
+    list.try_map(media_request_list, fn(media_request) {
       let #(id, RequestInfo(media_type: media_type, ..)) = media_request
-      let task = get_media_info_task(id, media_type, ctx)
+      let info = get_media_info(id, media_type, ctx)
 
       // To not burst Jellyseerr API
       process.sleep(100)
 
-      task
-    })
-
-  use media_info_list <- try(
-    list.try_map(media_info_tasks, fn(task) { task.await_forever(task) }),
+      info
+    }),
   )
 
   let combined_data =
@@ -140,8 +136,7 @@ fn media_requests_decoder() -> decode.Decoder(List(#(Int, RequestInfo))) {
   |> decode.at(["results"], _)
 }
 
-fn get_media_info_task(id: Int, media_type: String, ctx: web.Context) {
-  use <- task.async()
+fn get_media_info(id: Int, media_type: String, ctx: web.Context) {
   let url =
     string.join(
       [ctx.jellyseerr_url, api_path, media_type, int.to_string(id)],
