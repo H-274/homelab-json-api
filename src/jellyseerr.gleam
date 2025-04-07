@@ -18,7 +18,6 @@ pub type Error {
   BadURL
   HttpError(httpc.HttpError)
   JSONDecodeError(json.DecodeError)
-  TaskError
 }
 
 pub type RequestInfo {
@@ -38,7 +37,18 @@ pub fn handle(ctx: web.Context) {
   case fetch_data(ctx) {
     Ok(res) -> wisp.ok() |> wisp.json_body(res)
 
-    _ -> wisp.internal_server_error() |> wisp.string_body("Unexpected error")
+    Error(BadURL) -> {
+      wisp.log_error("Could not build request from URL")
+      wisp.internal_server_error()
+    }
+    Error(HttpError(_)) -> {
+      wisp.log_error("Request failed")
+      wisp.internal_server_error()
+    }
+    Error(JSONDecodeError(_)) -> {
+      wisp.log_error("Unable to decode JSON")
+      wisp.internal_server_error()
+    }
   }
 }
 
