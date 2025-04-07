@@ -68,7 +68,7 @@ fn fetch_data(ctx: web.Context) {
       let #(id, RequestInfo(media_type: media_type, ..)) = media_request
       let task = get_media_info_task(id, media_type, ctx)
 
-      // To not burst Jellyseer API
+      // To not burst Jellyseerr API
       process.sleep(100)
 
       task
