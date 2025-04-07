@@ -6,12 +6,16 @@ import gleam/httpc
 import gleam/int
 import gleam/json
 import gleam/list
-import gleam/option.{type Option}
 import gleam/otp/task
 import wisp
 
 pub type RequestInfo {
-  RequestInfo(media_type: MediaType, tmdb_id: Int, requested_by: String)
+  RequestInfo(
+    media_type: MediaType,
+    created_at: String,
+    tmdb_id: Int,
+    requested_by: String,
+  )
 }
 
 pub type MediaType {
@@ -46,12 +50,19 @@ fn fetch_data(ctx: web.Context) {
 
   let _media_info =
     list.map(requests_info, fn(req_info) {
+      // To avoid overwhelming the server with a burst
       process.sleep(100)
+
       use <- task.async()
       let assert Ok(req) =
         request.to(
           ctx.jellyseerr_url
-          <> "/api/v1/movie/"
+          <> "/api/v1/"
+          <> case req_info.media_type {
+            Movie -> "movie"
+            Tv -> "tv"
+          }
+          <> "/"
           <> int.to_string(req_info.tmdb_id),
         )
       let assert Ok(res) = httpc.send(req)
@@ -65,13 +76,14 @@ fn fetch_data(ctx: web.Context) {
 
 fn request_info_decoder() -> decode.Decoder(RequestInfo) {
   use media_type <- decode.field("type", media_type_decoder())
+  use created_at <- decode.field("createdAt", decode.string)
   use tmdb_id <- decode.subfield(["media", "tmdbId"], decode.int)
   use requested_by <- decode.subfield(
     ["requestedBy", "displayname"],
     decode.string,
   )
 
-  decode.success(RequestInfo(media_type:, tmdb_id:, requested_by:))
+  decode.success(RequestInfo(media_type:, created_at:, tmdb_id:, requested_by:))
 }
 
 fn media_type_decoder() {
