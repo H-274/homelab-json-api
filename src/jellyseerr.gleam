@@ -5,6 +5,7 @@ import gleam/function
 import gleam/http/request
 import gleam/httpc
 import gleam/int
+import gleam/io
 import gleam/json
 import gleam/list
 import gleam/result.{map_error, replace_error as error, try}
@@ -44,8 +45,9 @@ pub fn handle(ctx: web.Context) {
       wisp.log_error("Request failed")
       wisp.internal_server_error()
     }
-    Error(JSONDecodeError(_)) -> {
+    Error(JSONDecodeError(err)) -> {
       wisp.log_error("Unable to decode JSON")
+      io.debug(err)
       wisp.internal_server_error()
     }
   }
