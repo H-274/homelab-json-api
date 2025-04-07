@@ -85,9 +85,17 @@ fn fetch_data(ctx: web.Context) {
 
   let combined_data =
     list.fold(over: media_request_list, from: [], with: fn(memo, request) {
-      let #(id, request) = request
+      let #(
+        id,
+        RequestInfo(
+          media_type: media_type,
+          created_at: requested_at,
+          requested_by: requested_by,
+          ..,
+        ),
+      ) = request
       let assert Ok(media_info) = list.key_find(media_info_list, id)
-      let media_type = case request.media_type {
+      let media_type = case media_type {
         Movie -> "movie"
         Tv -> "tv"
       }
@@ -97,8 +105,8 @@ fn fetch_data(ctx: web.Context) {
           #("id", json.int(id)),
           #("title", json.string(media_info.title)),
           #("type", json.string(media_type)),
-          #("requested_at", json.string(request.created_at)),
-          #("requested_by", json.string(request.requested_by)),
+          #("requested_at", json.string(requested_at)),
+          #("requested_by", json.string(requested_by)),
           #("backdrop_path", json.string(media_info.backdrop_path)),
         ])
 
