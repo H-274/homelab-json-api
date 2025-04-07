@@ -18,4 +18,4 @@ If you like the consolidations I've done, feel free to use this! If not, or if y
 3. `JELLYSEERR_API_KEY` The API key to make requests to your Jellyseerr app
 
 ## Coming soon
-I'm considering adding my custom widgets to this repo since they don't adhere to the contribution guidelines for official community widgets, and I personally don't have the energy to convert all the component-specific classes to just using the css helper classes
+I'm considering adding my custom widgets to this repo since they don't adhere to the contribution guidelines for official community widgets, and I personally don't have the motivation to convert all the component-specific classes to just using the css helper classes
