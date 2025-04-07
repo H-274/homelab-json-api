@@ -1,8 +1,8 @@
 # homelab-json-api
 
-First off, big thanks to [Svilen Markov](https://github.com/svilenmarkov) for creating Glance ❤
+First off, big thanks to [Svilen Markov](https://github.com/svilenmarkov) for creating [Glance](https://github.com/glanceapp/glance) ❤
 
-This project exists to consolidate sequential requests into a single endpoint for convenience in my personal [Glance](https://github.com/glanceapp/glance) dashboard.
+This project exists to consolidate sequential requests into a single endpoint for convenience in my personal Glance dashboard.
 If you like the consolidations I've done, feel free to use this! If not, or if you need more, fork this and go ham!
 
 > [!NOTE]
