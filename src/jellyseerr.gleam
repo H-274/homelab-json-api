@@ -151,15 +151,25 @@ fn get_media_info(id: Int, media_type: String, ctx: web.Context) {
 
   use media_info <- try(httpc.send(media_info) |> map_error(HttpError))
   use media_info <- try(
-    json.parse(media_info.body, media_info_decoder(id))
+    json.parse(
+      media_info.body,
+      decode.one_of(movie_info_decoder(id), [tv_info_decoder(id)]),
+    )
     |> map_error(JSONDecodeError),
   )
 
   Ok(media_info)
 }
 
-fn media_info_decoder(id) -> decode.Decoder(#(Int, MediaInfo)) {
+fn movie_info_decoder(id) -> decode.Decoder(#(Int, MediaInfo)) {
   use title <- decode.field("title", decode.string)
+  use backdrop_path <- decode.field("backdropPath", decode.string)
+
+  decode.success(#(id, MediaInfo(title:, backdrop_path:)))
+}
+
+fn tv_info_decoder(id) -> decode.Decoder(#(Int, MediaInfo)) {
+  use title <- decode.field("name", decode.string)
   use backdrop_path <- decode.field("backdropPath", decode.string)
 
   decode.success(#(id, MediaInfo(title:, backdrop_path:)))
