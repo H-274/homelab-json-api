@@ -88,10 +88,10 @@ fn fetch_data(ctx: web.Context) {
       let #(
         id,
         RequestInfo(
+          status: status,
           media_type: media_type,
           created_at: requested_at,
           requested_by: requested_by,
-          ..,
         ),
       ) = request
       let assert Ok(media_info) = list.key_find(media_info_list, id)
@@ -105,6 +105,7 @@ fn fetch_data(ctx: web.Context) {
           #("id", json.int(id)),
           #("title", json.string(media_info.title)),
           #("type", json.string(media_type)),
+          #("status", json.int(status)),
           #("requested_at", json.string(requested_at)),
           #("requested_by", json.string(requested_by)),
           #("backdrop_path", json.string(media_info.backdrop_path)),
