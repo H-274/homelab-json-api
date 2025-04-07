@@ -19,7 +19,7 @@ pub fn middleware(
 }
 
 fn require_auth(req: wisp.Request, ctx: Context, next) {
-  case list.key_find(req.headers, "Authorization") {
+  case list.key_find(req.headers, "authorization") {
     Ok(token) if token == ctx.token -> next()
 
     Ok(_) -> wisp.response(403) |> wisp.string_body("Forbidden")
