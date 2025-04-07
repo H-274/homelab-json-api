@@ -24,7 +24,7 @@ pub type Error {
 pub type RequestInfo {
   RequestInfo(
     status: Int,
-    media_type: MediaType,
+    media_type: String,
     created_at: String,
     requested_by: String,
   )
@@ -32,11 +32,6 @@ pub type RequestInfo {
 
 pub type MediaInfo {
   MediaInfo(title: String, backdrop_path: String)
-}
-
-pub type MediaType {
-  Movie
-  Tv
 }
 
 pub fn handle(ctx: web.Context) {
@@ -95,10 +90,6 @@ fn fetch_data(ctx: web.Context) {
         ),
       ) = request
       let assert Ok(media_info) = list.key_find(media_info_list, id)
-      let media_type = case media_type {
-        Movie -> "movie"
-        Tv -> "tv"
-      }
 
       let combined =
         json.object([
@@ -124,15 +115,7 @@ fn media_requests_decoder() -> decode.Decoder(List(#(Int, RequestInfo))) {
     use tmdb_id <- decode.subfield(["media", "tmdbId"], decode.int)
     use status <- decode.field("status", decode.int)
     use created_at <- decode.field("createdAt", decode.string)
-    use media_type <- decode.field("type", {
-      use val <- decode.then(decode.string)
-      case val {
-        "movie" -> decode.success(Movie)
-        "tv" -> decode.success(Tv)
-
-        _ -> decode.failure(Movie, "Invalid media type")
-      }
-    })
+    use media_type <- decode.field("type", decode.string)
     use requested_by <- decode.subfield(
       ["requestedBy", "displayName"],
       decode.string,
@@ -148,12 +131,8 @@ fn media_requests_decoder() -> decode.Decoder(List(#(Int, RequestInfo))) {
   |> decode.at(["results"], _)
 }
 
-fn get_media_info_task(id: Int, media_type: MediaType, ctx: web.Context) {
+fn get_media_info_task(id: Int, media_type: String, ctx: web.Context) {
   use <- task.async()
-  let media_type = case media_type {
-    Movie -> "movie"
-    Tv -> "tv"
-  }
   let url =
     string.join(
       [ctx.jellyseerr_url, api_path, media_type, int.to_string(id)],
