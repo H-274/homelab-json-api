@@ -105,8 +105,8 @@ fn fetch_data(ctx: web.Context) {
       [combined, ..memo]
     })
 
-  json.array(combined_data, function.identity)
-  |> json.to_string_tree()
+  json.object([#("results", json.array(combined_data, function.identity))])
+  |> json.to_string_tree
   |> Ok()
 }
 
