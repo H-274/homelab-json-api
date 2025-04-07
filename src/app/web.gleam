@@ -10,8 +10,8 @@ pub fn middleware(
   ctx: Context,
   handle_request: fn(wisp.Request) -> wisp.Response,
 ) -> wisp.Response {
-  use <- require_auth(req, ctx)
   use <- wisp.log_request(req)
+  use <- require_auth(req, ctx)
   use <- wisp.rescue_crashes
   use req <- wisp.handle_head(req)
 
