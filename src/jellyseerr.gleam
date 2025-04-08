@@ -67,7 +67,6 @@ fn fetch_data(ctx: web.Context) {
       #("sort", "added"),
       #("sortDirection", "desc"),
     ])
-
   use media_request_list <- try(
     httpc.send(media_request_list) |> map_error(HttpError),
   )
@@ -76,49 +75,41 @@ fn fetch_data(ctx: web.Context) {
     |> map_error(JSONDecodeError),
   )
 
-  let media_info_task_list =
-    list.map(media_request_list, fn(media_request) {
-      let #(id, RequestInfo(media_type: media_type, ..)) = media_request
-      let task = get_media_info_task(id, media_type, ctx)
+  let media_info_task_list = {
+    use media_request <- list.map(media_request_list)
+    let #(id, RequestInfo(media_type: media_type, ..)) = media_request
+    let task = get_media_info_task(id, media_type, ctx)
 
-      // To not burst Jellyseerr API
-      process.sleep(100)
-      task
-    })
+    // To not burst Jellyseerr API
+    process.sleep(100)
+    task
+  }
   use media_info_list <- try(list.try_map(
     media_info_task_list,
     task.await_forever,
   ))
 
-  let combined_data =
-    list.fold(over: media_request_list, from: [], with: fn(memo, request) {
-      let #(
-        id,
-        RequestInfo(
-          status: status,
-          media_type: media_type,
-          created_at: requested_at,
-          requested_by: requested_by,
-        ),
-      ) = request
-      let assert Ok(media_info) = list.key_find(media_info_list, id)
+  let combined_data = {
+    use memo, request <- list.fold(over: media_request_list, from: [])
+    let #(id, request_info) = request
+    let assert Ok(media_info) = list.key_find(media_info_list, id)
 
-      let combined =
-        json.object([
-          #("id", json.int(id)),
-          #("title", json.string(media_info.title)),
-          #("type", json.string(media_type)),
-          #("status", json.int(status)),
-          #("requested_at", json.string(requested_at)),
-          #("requested_by", json.string(requested_by)),
-          #("backdrop_path", json.string(media_info.backdrop_path)),
-        ])
+    let combined =
+      json.object([
+        #("id", json.int(id)),
+        #("title", json.string(media_info.title)),
+        #("type", json.string(request_info.media_type)),
+        #("status", json.int(request_info.status)),
+        #("requested_at", json.string(request_info.created_at)),
+        #("requested_by", json.string(request_info.requested_by)),
+        #("backdrop_path", json.string(media_info.backdrop_path)),
+      ])
 
-      list.append(memo, [combined])
-    })
+    list.append(memo, [combined])
+  }
 
   json.object([#("results", json.array(combined_data, function.identity))])
-  |> json.to_string_tree
+  |> json.to_string_tree()
   |> Ok()
 }
 
