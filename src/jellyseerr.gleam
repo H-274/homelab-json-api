@@ -42,8 +42,9 @@ pub fn handle(ctx: web.Context) {
       wisp.log_error("Could not build request from URL")
       wisp.internal_server_error()
     }
-    Error(HttpError(_)) -> {
+    Error(HttpError(err)) -> {
       wisp.log_error("Request failed")
+      io.debug(err)
       wisp.internal_server_error()
     }
     Error(JSONDecodeError(err)) -> {
