@@ -78,11 +78,7 @@ fn fetch_data(ctx: web.Context) {
   let media_info_task_list = {
     use media_request <- list.map(media_request_list)
     let #(id, RequestInfo(media_type: media_type, ..)) = media_request
-    let task = get_media_info_task(id, media_type, ctx)
-
-    // To not burst Jellyseerr API
-    process.sleep(100)
-    task
+    get_media_info_task(id, media_type, ctx)
   }
   use media_info_list <- try(list.try_map(
     media_info_task_list,
